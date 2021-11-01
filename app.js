@@ -1,5 +1,6 @@
 //Get the UI elements
 let form = document.querySelector('#book-form');
+let booklist = document.querySelector("#book-list");
 
 
 //Book Class
@@ -13,10 +14,8 @@ class Book {
 
 // UI Class
 class UI {
-    constructor() {
-
-    }
-    addBooklist(book) {
+    
+    static addBooklist(book) {
         //console.log(book);
         let list = document.querySelector("#book-list");
         let row = document.createElement('tr');
@@ -29,13 +28,13 @@ class UI {
         //console.log(row);
     }
 
-    clearFields() {
+    static clearFields() {
         document.querySelector("#title").value = '';
         document.querySelector("#author").value = '';
         document.querySelector("#isbn").value = '';
     }
 
-    showAlert(message, className) {
+    static showAlert(message, className) {
         let div = document.createElement('div');
         div.className = `alert ${className}`; //error will show in place of classname which is a built in class of skeleton CSS
         div.appendChild(document.createTextNode(message));
@@ -50,10 +49,19 @@ class UI {
             document.querySelector('.alert').remove();
         }, 3000); //error message will vanish after 3 sec
     }
+    
+    static deleteFromBook(target) {
+        //console.log(target);
+        if(target.hasAttribute('href')) {
+            target.parentElement.parentElement.remove();
+            UI.showAlert("Book Removed!", "success");
+        }
+    }
 }
 
 // Add Event Listener
 form.addEventListener('submit', newBook);
+booklist.addEventListener('click', removeBook);
 
 // Define functions
 
@@ -63,24 +71,30 @@ function newBook(e) {
     author = document.querySelector("#author").value,
     isbn = document.querySelector("#isbn").value;
  
-    let ui = new UI();
+    //let ui = new UI();
      
     if(title === '' || author === '' || isbn === '') {
         //alert("All Fields!");
-        ui.showAlert("Please fill all the fields!", "error");
+        UI.showAlert("Please fill all the fields!", "error");
     } else {
         let book = new Book(title, author, isbn);
         //console.log(book);
 
-        ui.addBooklist(book);
+        UI.addBooklist(book);
 
-        ui.showAlert("Book Added!", "success");
+        UI.showAlert("Book Added!", "success");
 
-        ui.clearFields();
+        UI.clearFields();
     }
     
 
     
+    e.preventDefault();
+}
 
+function removeBook(e) {
+    
+    //let ui = new UI();
+    UI.deleteFromBook(e.target);
     e.preventDefault();
 }
