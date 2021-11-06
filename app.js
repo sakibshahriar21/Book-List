@@ -15,7 +15,7 @@ class Book {
 // UI Class
 class UI {
     
-    static addBooklist(book) {
+    static addToBooklist(book) {
         //console.log(book);
         let list = document.querySelector("#book-list");
         let row = document.createElement('tr');
@@ -54,14 +54,58 @@ class UI {
         //console.log(target);
         if(target.hasAttribute('href')) {
             target.parentElement.parentElement.remove();
+            Store.removeBook(target.parentElement.previousElementSibling.textContent.trim());
+            //console.log(target.parentElement.previousElementSibling.textContent.trim()); //to print the isbn associated with each book
             UI.showAlert("Book Removed!", "success");
         }
     }
 }
 
+//Local Storage Class
+class Store {
+    static getBooks() {
+        let books;
+        if(localStorage.getItem('books') === null) {
+            books = [];
+        } else {
+            books = JSON.parse(localStorage.getItem('books'));
+        }
+        return books;
+    }
+
+    static addBook(book) {
+        let books = Store.getBooks(); //check wether it has any book info 
+        books.push(book);
+        
+        localStorage.setItem('books', JSON.stringify(books));
+    }
+
+    static displayBooks() {
+        let books = Store.getBooks();
+
+        books.forEach(book => {
+            UI.addToBooklist(book);
+        });
+    }
+
+    static removeBook(isbn) {
+        let books = Store.getBooks();
+
+        books.forEach((book, index) => {
+            if(book.isbn === isbn) {    //removing books by isbn
+                books.splice(index, 1);
+            }
+        });
+
+        localStorage.setItem('books', JSON.stringify(books));
+    }
+}
+
+
 // Add Event Listener
 form.addEventListener('submit', newBook);
 booklist.addEventListener('click', removeBook);
+document.addEventListener('DOMContentLoaded', Store.displayBooks());
 
 // Define functions
 
@@ -80,11 +124,13 @@ function newBook(e) {
         let book = new Book(title, author, isbn);
         //console.log(book);
 
-        UI.addBooklist(book);
+        UI.addToBooklist(book);
 
         UI.showAlert("Book Added!", "success");
 
         UI.clearFields();
+
+        Store.addBook(book);
     }
     
 
